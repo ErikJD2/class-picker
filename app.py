@@ -272,9 +272,18 @@ for i in all_ids:
 
 # Helpers to compute availability
 def remaining_after(selected_ids: List[int]) -> Set[int]:
+    """
+    Given currently selected class IDs, return the set of remaining class IDs
+    that do not conflict in time AND do not share the same course name.
+    """
     remaining = set(all_ids) - set(selected_ids)
     for sid in selected_ids:
+        # remove time conflicts
         remaining -= conflict_map[sid]
+        # remove same-course-name rows
+        selected_course = str(df.loc[sid, course_col]).strip().lower()
+        same_name_ids = set(df.index[df[course_col].str.strip().str.lower() == selected_course])
+        remaining -= same_name_ids
     return remaining
 
 def options_for(selected_ids: List[int]) -> List[int]:
